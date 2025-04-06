@@ -1,0 +1,9 @@
+<?php
+
+namespace {name_spase};
+
+{use_class_name}
+final class {class_name}{extends_class_name}
+{
+
+}

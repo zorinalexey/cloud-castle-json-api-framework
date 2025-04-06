@@ -1,0 +1,27 @@
+{
+  "name": "cloud-castle/core-api",
+  "description": "test",
+  "type": "project",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "App\\": "App/",
+      "CloudCastle\\Core\\": "Core/",
+      "DataBase\\Migrate\\": "database/migrate/",
+      "DataBase\\Seed\\": "database/seed/",
+      "DataBase\\Factory\\": "database/foctory/"
+    },
+    "files": [
+      "Core/functions/autoload_functions.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "test"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.3"
+  }
+}

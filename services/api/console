@@ -1,0 +1,29 @@
+#!/usr/bin/php
+
+<?php
+
+use CloudCastle\Core\Console\Console;
+
+const APP = 'CLI';
+
+require(__DIR__ . '/App/bootstrap.php');
+
+unset($argv[0]);
+
+$args = [];
+
+foreach ($argv as $argStr) {
+    if (($arg = explode('=', trim($argStr))) && count($arg) === 2) {
+        $args[$arg[0]] = trim($arg[1], '"');
+    } else {
+        $args[] = $argStr;
+    }
+}
+
+$console = new Console(...$args);
+
+try {
+    $console->run();
+} catch (Exception $e) {
+    echo $e->getMessage() . PHP_EOL;
+}

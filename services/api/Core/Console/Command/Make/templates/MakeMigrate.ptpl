@@ -1,0 +1,36 @@
+<?php
+
+namespace DataBase\Migrate;
+
+{use_model};
+use CloudCastle\Core\DataBase\Migrate;
+use CloudCastle\Core\DataBase\Schema;
+use CloudCastle\Core\DataBase\Table\Table;
+
+return new class extends Migrate
+{
+    /**
+     * @var string
+     */
+    private string $model = {model}::class;
+
+    /**
+     * @return bool
+     */
+    public function up(): bool
+    {
+        return Schema::model($this->model)->{up_method}(static function(Table $table): void {
+            {up_columns}
+        });
+    }
+
+    /**
+     * @return bool
+     */
+    public function down(): bool
+    {
+        return Schema::model($this->model)->{down_method}(static function(Table $table): void {
+            {down_columns}
+        });
+    }
+};

@@ -1,0 +1,19 @@
+<?php
+
+namespace {name_spase};
+
+{use_class_name}
+final class {class_name}{extends_class_name}
+{
+    public const string description = 'Command description';
+
+    /**
+     * @return string|null
+     */
+    public function handle (): string|null
+    {
+        // TODO: Implement handle() method.
+
+        return null;
+    }
+}

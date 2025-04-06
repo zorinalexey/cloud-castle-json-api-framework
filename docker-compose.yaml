@@ -1,0 +1,67 @@
+
+services:
+  api:
+    build:
+      context: ./.docker/api
+    container_name: api
+    env_file:
+      - "./.env"
+    environment:
+      TZ: ${TIME_ZONE}
+    ports:
+      - "8802:80"
+    working_dir: /var/www/html
+    volumes:
+      - "./config/services/api/supervisor.conf:/etc/supervisord.conf:rw"
+      - "./config/services/api/app.conf:/etc/nginx/nginx.conf:rw"
+      - "./services/api:/var/www/html:rw"
+      - "./.env:/var/www/html/.env:ro"
+      - "./logs/services/api:/var/log:rw"
+    networks:
+      - app
+
+  ws:
+    build:
+      context: ./.docker/ws
+    container_name: "ws"
+    env_file:
+      - "./.env"
+    environment:
+      TZ: ${TIME_ZONE}
+    volumes:
+      - "./services/ws/server.js:/opt/ws/server.js:rw"
+      - "./logs/services/ws:/opt/ws/logs:rw"
+    working_dir: /opt/ws/
+    networks:
+      - app
+
+  redis:
+    build:
+      context: ./.docker/redis
+    container_name: "redis"
+    env_file:
+      - "./.env"
+    environment:
+      TZ: ${TIME_ZONE}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "9901:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--logfile", "/var/log/redis/redis.log"]
+    volumes:
+      - "./.data/db/redis:/data:rw"
+      - "./logs/services/redis:/var/log/redis"
+    restart: always
+    networks:
+      - app
+
+volumes:
+  data:
+    driver: local
+  logs:
+    driver: local
+
+networks:
+  app:
+    driver: bridge
+    ipam:
+      driver: default
