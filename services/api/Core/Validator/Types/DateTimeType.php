@@ -14,13 +14,13 @@ final class DateTimeType extends AbstractValidator
      */
     public function validate (mixed &$var, mixed $params = []): void
     {
-        if ($date = date_create($var)) {
-            $var = $date;
-            
+        if (!$var && $this->setDefault($var, $params)) {
             return;
         }
         
-        if ($this->setDefault($var, $params)) {
+        if ($date = date_create($var)) {
+            $var = $date;
+            
             return;
         }
         

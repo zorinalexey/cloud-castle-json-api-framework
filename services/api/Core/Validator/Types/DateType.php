@@ -14,13 +14,13 @@ final class DateType extends AbstractValidator
      */
     public function validate (mixed &$var, mixed $params = []): void
     {
-        if ($date = date_create($var)) {
-            $format = 'Y-m-d';
-            
-            if (isset($params['format'])) {
-                $format = $params['format'];
-            }
-            
+        $format = 'Y-m-d';
+        
+        if (isset($params['format'][0])) {
+            $format = $params['format'][0];
+        }
+        
+        if ($var && $date = date_create($var)) {
             $var = $date->format($format);
             
             return;

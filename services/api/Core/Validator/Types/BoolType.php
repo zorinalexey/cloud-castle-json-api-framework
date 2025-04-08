@@ -20,8 +20,8 @@ final class BoolType extends AbstractValidator
             return;
         }
         
-        if (is_string($var) && in_array($var, ['false', 'no', 'off', '0'])) {
-            $var = true;
+        if (is_string($var) && in_array($var, ['false', 'no', 'off', '0', 'null'])) {
+            $var = false;
             
             return;
         }

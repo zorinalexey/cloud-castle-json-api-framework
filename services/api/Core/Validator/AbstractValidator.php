@@ -14,8 +14,9 @@ abstract class AbstractValidator implements ValidatorInterface
     protected function setDefault (mixed &$var, array $params = []): bool
     {
         if (!$var && isset($params['default'])) {
-            $var = $params['default'];
-            $this->validate($var, $params['default']);
+            $var = $params['default'][0] ?? null;
+            unset($params['default']);
+            $this->validate($var, $params);
             
             return true;
         }

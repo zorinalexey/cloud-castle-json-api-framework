@@ -11,6 +11,7 @@ use CloudCastle\Core\Console\Command\Make\MakeModel;
 use CloudCastle\Core\Console\Command\Make\MakeObserver;
 use CloudCastle\Core\Console\Command\Make\MakeRepository;
 use CloudCastle\Core\Console\Command\Make\MakeRequest;
+use CloudCastle\Core\Console\Command\Make\MakeResource;
 use CloudCastle\Core\Console\Command\Make\MakeRoute;
 use CloudCastle\Core\Console\Command\Make\MakeSeed;
 use CloudCastle\Core\Console\Command\Make\MakeService;
@@ -23,6 +24,7 @@ return [
     'schedule:list' => ScheduleList::class,
     'make:class' => MakeClass::class,
     'make:request' => MakeRequest::class,
+    'make:resource' => MakeResource::class,
     'make:service' => MakeService::class,
     'make:repository' => MakeRepository::class,
     'make:model' => MakeModel::class,

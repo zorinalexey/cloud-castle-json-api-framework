@@ -9,7 +9,7 @@ final class TestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'bool'
+            'id' => 'date:default,2025-01-01:format,d.m.Y',
         ];
     }
 }

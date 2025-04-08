@@ -5,11 +5,6 @@ namespace CloudCastle\Core\Request;
 final class Request extends AbstractRequest
 {
     /**
-     * @var Request|null
-     */
-    private static self|null $instance = null;
-    
-    /**
      * @var string
      */
     public readonly string $request_uri;
@@ -19,8 +14,6 @@ final class Request extends AbstractRequest
      */
     protected function __construct ()
     {
-        self::$instance = $this;
-        
         foreach ($this->getData() as $key => $value) {
             $this->{$key} = $value;
         }
@@ -35,15 +28,15 @@ final class Request extends AbstractRequest
     {
         $data = [];
         $headers = getallheaders();
-        $contentType = isset($headers['Content-Type']) ? $headers['Content-Type'] : ($_SERVER['CONTENT_TYPE'] ?? null);
+        $contentType = $headers['Content-Type'] ?? ($_SERVER['CONTENT_TYPE'] ?? null);
         
         if (($input = file_get_contents('php://input'))) {
             if ($contentType === 'application/json') {
                 $data = json_decode($input, true);
             }
             
-            if ($contentType === 'application/xml') {
-                $data = (array) simplexml_load_string($input);
+            if ($contentType === 'application/xml' || $contentType === 'text/xml') {
+                $data = json_decode(json_encode(simplexml_load_string($input)), true);
             }
         }
         

@@ -37,11 +37,15 @@ abstract class FormRequest extends AbstractRequest
      * @return array
      * @throws ValidationException
      */
-    public function validated (): array
+    final public function validated (): array
     {
         $data = [];
         
         foreach ($this->rules() as $propertyName => $rules) {
+            if (!isset($this->{$propertyName})) {
+                $this->{$propertyName} = null;
+            }
+            
             $this->runValidate($this->{$propertyName}, $rules, $propertyName);
             $data[$propertyName] = $this->{$propertyName};
         }
@@ -59,11 +63,12 @@ abstract class FormRequest extends AbstractRequest
     abstract public function rules (): array;
     
     /**
-     * @param string $propertyName
-     * @param array $rules
-     * @return mixed
+     * @param mixed $var
+     * @param string $rules
+     * @param string $key
+     * @return void
      */
-    private function runValidate (mixed &$var, string $rules, string $key): void
+    private function runValidate (mixed &$var, string $rules, string $varName): void
     {
         foreach (explode('|', $rules) as $rule) {
             $opt = explode(':', $rule);
@@ -71,19 +76,28 @@ abstract class FormRequest extends AbstractRequest
             unset($opt[0]);
             /** @var AbstractValidator $validator */
             $validator = isset($this->validators[$type]) ? new $this->validators[$type]() : null;
+            $options = [];
+            
+            foreach ($opt as $value) {
+                $optData = explode(',', $value);
+                $key = $optData[0];
+                unset($optData[0]);
+                $options[$key] = [...$optData];
+            }
             
             if($validator) {
-                $validator->validate($var, $opt);
+                $validator->validate($var, $options);
                 
                 if($error = $validator->getError()){
-                    $this->errors[$key][$type] = $error;
+                    $this->errors[$varName][$type] = $error;
                 }
                 
                 if(str_contains($rules, 'nullable')) {
-                    unset($this->errors[$key]);
+                    unset($this->errors[$varName]);
                 }
+                
+                unset($validator, $error, $options, $opt, $optData, $type);
             }
         }
-        
     }
 }

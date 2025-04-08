@@ -9,7 +9,7 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
     /**
      * @var array
      */
-    private static array $instance = [];
+    protected static array $instance = [];
     
     /**
      * @return self
@@ -35,8 +35,24 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
         return $this->{$name} ?? $default;
     }
     
+    /**
+     * @param string $name
+     * @return mixed
+     */
     final public function __get(string $name): mixed
     {
-        return null;
+        $this->{$name} = $this->get($name);
+        
+        return $this->{$name};
+    }
+    
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    final public function __set (string $name, mixed $value): void
+    {
+        $this->{$name} = $value;
     }
 }
