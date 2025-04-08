@@ -27,16 +27,16 @@ final class Request extends AbstractRequest
     private function getData (): array
     {
         $data = [];
-        $headers = getallheaders();
+        $headers = getallheaders()??[];
         $contentType = $headers['Content-Type'] ?? ($_SERVER['CONTENT_TYPE'] ?? null);
         
         if (($input = file_get_contents('php://input'))) {
-            if ($contentType === 'application/json') {
+            if ($contentType === 'application/json' && json_validate($input)) {
                 $data = json_decode($input, true);
             }
             
-            if ($contentType === 'application/xml' || $contentType === 'text/xml') {
-                $data = json_decode(json_encode(simplexml_load_string($input)), true);
+            if (($contentType === 'application/xml' || $contentType === 'text/xml') && $input = simplexml_load_string($input)) {
+                $data = json_decode(json_encode($input), true);
             }
         }
         

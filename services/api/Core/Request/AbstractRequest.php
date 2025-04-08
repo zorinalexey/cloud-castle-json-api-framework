@@ -2,6 +2,7 @@
 
 namespace CloudCastle\Core\Request;
 
+use CloudCastle\Core\Enums\VarType;
 use stdClass;
 
 abstract class AbstractRequest extends stdClass implements RequestInterface
@@ -27,12 +28,21 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
     
     /**
      * @param string $name
-     * @param mixed $default
+     * @param mixed|null $default
+     * @param VarType|null $type
      * @return mixed
      */
-    final public function get (string $name, mixed $default = null): mixed
+    final public function get (string $name, mixed $default = null, VarType|null $type = null): mixed
     {
-        return $this->{$name} ?? $default;
+        $var = $this->{$name} ?? $default;
+        
+        if($type) {
+            settype($var, $type->value);
+        }
+        
+        $this->{$name} = $var;
+        
+        return $var;
     }
     
     /**
@@ -41,9 +51,7 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
      */
     final public function __get(string $name): mixed
     {
-        $this->{$name} = $this->get($name);
-        
-        return $this->{$name};
+        return $this->get($name);
     }
     
     /**
@@ -54,5 +62,119 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
     final public function __set (string $name, mixed $value): void
     {
         $this->{$name} = $value;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function headers(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->headers;
+        }
+        
+        foreach ($this->headers as $key => $value) {
+            if (mb_strtolower($name) === mb_strtolower($key)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function server(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->server;
+        }
+        
+        foreach ($this->server as $key => $value) {
+            if (mb_strtolower($name) === mb_strtolower($key)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function cookies(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->cookies;
+        }
+        
+        foreach ($this->cookies as $key => $value) {
+            if (mb_strtolower($name) === mb_strtolower($key)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function session(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->session;
+        }
+        
+        foreach ($this->session as $key => $value) {
+            if ($name === $key) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function env(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->env;
+        }
+        
+        foreach ($this->env as $key => $value) {
+            if ($name === $key) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function files(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->files;
+        }
+        
+        foreach ($this->files as $key => $value) {
+            if ($name === $key) {
+                return $value;
+            }
+        }
+        
+        return null;
     }
 }
