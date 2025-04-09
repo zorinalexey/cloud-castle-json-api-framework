@@ -32,7 +32,7 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
      * @param VarType|null $type
      * @return mixed
      */
-    final public function get (string $name, mixed $default = null, VarType|null $type = null): mixed
+    final public function getVar (string $name, mixed $default = null, VarType|null $type = null): mixed
     {
         $var = $this->{$name} ?? $default;
         
@@ -51,7 +51,7 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
      */
     final public function __get(string $name): mixed
     {
-        return $this->get($name);
+        return $this->getVar($name);
     }
     
     /**
@@ -170,6 +170,44 @@ abstract class AbstractRequest extends stdClass implements RequestInterface
         }
         
         foreach ($this->files as $key => $value) {
+            if ($name === $key) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function get(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->get;
+        }
+        
+        foreach ($this->get as $key => $value) {
+            if ($name === $key) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
+    final public function post(string|null $name = null): mixed
+    {
+        if(!$name) {
+            return $this->post;
+        }
+        
+        foreach ($this->post as $key => $value) {
             if ($name === $key) {
                 return $value;
             }

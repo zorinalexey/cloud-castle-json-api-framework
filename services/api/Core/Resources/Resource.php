@@ -2,8 +2,9 @@
 
 namespace CloudCastle\Core\Resources;
 
+use CloudCastle\Core\Collections\AbstractCollection;
 use CloudCastle\Core\Model\Model;
-use Core\Collections\AbstractCollection;
+use JsonException;
 
 abstract class Resource
 {
@@ -46,5 +47,41 @@ abstract class Resource
         }
         
         return null;
+    }
+    
+    public function __toString(): string
+    {
+        $contentType = headers('Content-Type');
+        
+        return match ($contentType) {
+            'application/json' => $this->getToJson(),
+            'application/xml', 'text/xml' => $this->getToXml(),
+            default => $this->getToHtml(),
+        };
+    }
+    
+    /**
+     * @return string
+     * @throws JsonException
+     */
+    private function getToJson (): string
+    {
+        return json_encode($this->toArray(), JSON_THROW_ON_ERROR|JSON_PRETTY_PRINT);
+    }
+    
+    /**
+     * @return string
+     */
+    private function getToXml (): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>';
+    }
+    
+    /**
+     * @return string
+     */
+    private function getToHtml (): string
+    {
+        return (string) $this->data;
     }
 }

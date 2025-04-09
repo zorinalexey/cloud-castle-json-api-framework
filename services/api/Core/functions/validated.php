@@ -3,7 +3,7 @@
 use CloudCastle\Core\Validator\AbstractValidator;
 use CloudCastle\Core\Validator\ValidationException;
 
-function validate (mixed &$var, string $rules)
+function validated (mixed &$var, string $rules): void
 {
     $validators = config('validator');
     

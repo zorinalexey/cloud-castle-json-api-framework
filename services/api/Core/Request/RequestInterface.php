@@ -14,7 +14,7 @@ interface RequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public function get (string $name, mixed $default = null): mixed;
+    public function getVar (string $name, mixed $default = null): mixed;
     
     /**
      * @param string $name

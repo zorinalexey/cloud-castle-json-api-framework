@@ -23,13 +23,12 @@ abstract class FormRequest extends AbstractRequest
      */
     protected function __construct ()
     {
-        $request = Request::getInstance();
+        $this->original = Request::getInstance();
         
-        foreach ($request as $key => $value) {
+        foreach ($this->original as $key => $value) {
             $this->{$key} = $value;
         }
         
-        $this->original = $request;
         $this->validators = config('validator');
     }
     

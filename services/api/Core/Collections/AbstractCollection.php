@@ -318,7 +318,7 @@ abstract class AbstractCollection implements Traversable, Iterator, Countable, A
     
     /**
      * Вычисляет расхождение в коллекциях, без учета ключей
-     * @param array|AbstractCollection $collection
+     * @param AbstractCollection $collection
      * @return $this
      */
     final public function diff(self $collection): static

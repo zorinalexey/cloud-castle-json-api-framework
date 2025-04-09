@@ -11,7 +11,12 @@ use CloudCastle\Core\Router\Router;
 define('START_TIME', microtime(true));
 define('APP_ROOT', dirname(__FILE__, 2));
 
-$data = [];
+$data = new class implements Stringable {
+    public function __toString(): string
+    {
+        return '';
+    }
+};
 
 try {
     require_once APP_ROOT . '/vendor/autoload.php';
@@ -31,15 +36,12 @@ try {
         error_reporting(E_ALL);
     }
     
-    foreach (scan_dir(APP_ROOT . DIRECTORY_SEPARATOR . 'routes') as $file) {
-        require_once $file;
-    }
+    Router::init();
     
     if (APP === 'WEB') {
         session_start();
         
         $data = Router::run();
-        var_dump($data);
     }elseif(APP === 'CLI'){
         echo TerminalColor::blue('Start CLI-Mode: '.date('Y-m-d H:i:s')).PHP_EOL;
     }else{
@@ -50,5 +52,9 @@ try {
     $action = Router::checkAction($controller, config('app.fatal_error_action', 'page500'));
     $data = $controller->{$action}($t);
 }
+
+header('Content-type: '. headers('Content-Type'));
+
+echo $data;
 
 define('END_TIME', microtime(true));

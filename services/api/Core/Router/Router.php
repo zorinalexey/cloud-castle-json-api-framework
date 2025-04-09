@@ -9,10 +9,12 @@ use CloudCastle\Core\Middleware\Middleware;
 use CloudCastle\Core\Request\Request;
 use CloudCastle\Core\Request\RequestInterface;
 use Exception;
+use Stringable;
 
 final class Router
 {
     private static Route|null $currentRoute = null;
+    private static RequestInterface|null $request = null;
     
     /**
      * @return Route
@@ -31,9 +33,10 @@ final class Router
      * @return mixed
      * @throws Exception
      */
-    public static function run (): mixed
+    public static function run (): Stringable
     {
         $request = Request::getInstance();
+        self::$request = $request;
         
         /** @var Route $route */
         foreach (self::getRoutes() as $route) {
@@ -42,6 +45,7 @@ final class Router
                 $controller = self::checkController($route->getController());
                 $action = self::checkAction($controller, $route->getAction());
                 $request = self::checkRequest($matches, $route->getRequest());
+                self::$request = $request;
                 
                 if (self::checkMiddlewares($route->getMiddlewares(), $request)) {
                     return  $controller->{$action}($request);
@@ -150,5 +154,23 @@ final class Router
     private static function getRequestMethod (): string
     {
         return mb_strtoupper($_SERVER['REQUEST_METHOD']??'GET');
+    }
+    
+    /**
+     * @return void
+     */
+    public static function init(): void
+    {
+        foreach (scan_dir(APP_ROOT . DIRECTORY_SEPARATOR . 'routes') as $file) {
+            require_once $file;
+        }
+    }
+    
+    /**
+     * @return RequestInterface
+     */
+    public static function getRequest (): RequestInterface
+    {
+        return self::$request;
     }
 }

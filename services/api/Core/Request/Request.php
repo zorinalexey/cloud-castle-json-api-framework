@@ -45,7 +45,7 @@ final class Request extends AbstractRequest
             }
         }
         
-        $default = [...$_GET, 'session' => $_SESSION??[], 'cookie' => $_COOKIE, 'server' => $_SERVER, 'headers' => $headers, 'env' => $_ENV];
+        $default = [...$_GET, 'session' => $_SESSION??[], 'post' => $_POST, 'get' => $_GET , 'cookie' => $_COOKIE, 'server' => $_SERVER, 'headers' => $headers, 'env' => $_ENV];
         
         return match ($_SERVER['REQUEST_METHOD']??'GET') {
             'POST', 'PUT', 'PATCH' => [...$default, ...$data, ...$_POST, 'files' => $_FILES],
