@@ -2,6 +2,7 @@
 
 namespace CloudCastle\Core\Console\Command;
 
+use CloudCastle\Core\Console\TerminalColor;
 use InvalidArgumentException;
 
 abstract class Command implements CommandInterface
@@ -19,14 +20,13 @@ abstract class Command implements CommandInterface
     /**
      * @return bool
      */
-    public static function checkRun (): bool
+    final public static function checkRun (): bool
     {
         $file = static::getRunFile();
         $check = false;
         
         if (static::NOT_RUN_DUPLICATE) {
             $check = file_exists($file);
-            
         }
         
         if ($check) {
@@ -39,7 +39,7 @@ abstract class Command implements CommandInterface
     /**
      * @return string
      */
-    private static function getRunFile (): string
+    final public static function getRunFile (): string
     {
         return APP_ROOT . '/storage/app/command/' . md5(static::class) . '.run';
     }
@@ -51,7 +51,7 @@ abstract class Command implements CommandInterface
     final protected static function info (string $message): string
     {
         $message = $message . PHP_EOL;
-        echo $message;
+        echo TerminalColor::green($message);
         
         return $message;
     }
@@ -59,7 +59,7 @@ abstract class Command implements CommandInterface
     /**
      *
      */
-    public function __destruct ()
+    final public function __destruct ()
     {
         if (($file = $this->getRunFile()) && file_exists($file)) {
             unlink($file);
@@ -69,7 +69,7 @@ abstract class Command implements CommandInterface
     /**
      * @return void
      */
-    public function setLockFile (): void
+    final public function setLockFile (): void
     {
         file_put_contents($this->getRunFile(), static::info('Task ' . static::class . ' run: ' . date('Y-m-d H:i:s')), FILE_APPEND | LOCK_EX);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace CloudCastle\Core\Model;
+namespace CloudCastle\Core\Collections;
 
 final class PaginateCollection extends AbstractCollection
 {

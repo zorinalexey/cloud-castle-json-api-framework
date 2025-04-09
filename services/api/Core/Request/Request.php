@@ -27,7 +27,12 @@ final class Request extends AbstractRequest
     private function getData (): array
     {
         $data = [];
-        $headers = getallheaders()??[];
+        $headers = [];
+        
+        if(function_exists('getallheaders')) {
+            $headers = getallheaders();
+        }
+        
         $contentType = $headers['Content-Type'] ?? ($_SERVER['CONTENT_TYPE'] ?? null);
         
         if (($input = file_get_contents('php://input'))) {
@@ -40,9 +45,9 @@ final class Request extends AbstractRequest
             }
         }
         
-        $default = [...$_GET, 'session' => $_SESSION, 'cookie' => $_COOKIE, 'server' => $_SERVER, 'headers' => $headers, 'env' => $_ENV];
+        $default = [...$_GET, 'session' => $_SESSION??[], 'cookie' => $_COOKIE, 'server' => $_SERVER, 'headers' => $headers, 'env' => $_ENV];
         
-        return match ($_SERVER['REQUEST_METHOD']) {
+        return match ($_SERVER['REQUEST_METHOD']??'GET') {
             'POST', 'PUT', 'PATCH' => [...$default, ...$data, ...$_POST, 'files' => $_FILES],
             'DELETE' => [...$default, ...$data],
             default => $default,

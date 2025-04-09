@@ -16,12 +16,11 @@ use CloudCastle\Core\Console\Command\Make\MakeRoute;
 use CloudCastle\Core\Console\Command\Make\MakeSeed;
 use CloudCastle\Core\Console\Command\Make\MakeService;
 use CloudCastle\Core\Console\Command\Make\MakeValidator;
+use CloudCastle\Core\Console\Command\Route\RouteList;
 use CloudCastle\Core\Console\Command\Schedule\ScheduleList;
 use CloudCastle\Core\Console\Command\Schedule\ScheduleRun;
 
 return [
-    'schedule:run' => ScheduleRun::class,
-    'schedule:list' => ScheduleList::class,
     'make:class' => MakeClass::class,
     'make:request' => MakeRequest::class,
     'make:resource' => MakeResource::class,
@@ -38,4 +37,7 @@ return [
     'make:validator' => MakeValidator::class,
     'make:middleware' => MakeMiddleware::class,
     'make:route' => MakeRoute::class,
+    'route:list' => RouteList::class,
+    'schedule:run' => ScheduleRun::class,
+    'schedule:list' => ScheduleList::class,
 ];

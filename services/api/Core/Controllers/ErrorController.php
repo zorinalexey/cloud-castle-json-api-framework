@@ -7,13 +7,13 @@ use Throwable;
 
 final class ErrorController extends Controller
 {
-    public function page404(Request $request): mixed
+    public function page404(Request $request)
     {
-        return $request;
+        var_dump(__METHOD__, $request);
     }
     
-    public function page500(Throwable $t): mixed
+    public function page500(Throwable $t)
     {
-        return $t;
+        var_dump(__METHOD__, $t);
     }
 }

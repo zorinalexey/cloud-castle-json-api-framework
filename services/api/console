@@ -3,13 +3,13 @@
 <?php
 
 use CloudCastle\Core\Console\Console;
+use CloudCastle\Core\Console\TerminalColor;
 
 const APP = 'CLI';
 
 require(__DIR__ . '/App/bootstrap.php');
 
 unset($argv[0]);
-
 $args = [];
 
 foreach ($argv as $argStr) {
@@ -20,10 +20,11 @@ foreach ($argv as $argStr) {
     }
 }
 
-$console = new Console(...$args);
-
 try {
+    $console = new Console(...$args);
     $console->run();
 } catch (Exception $e) {
-    echo $e->getMessage() . PHP_EOL;
+    echo TerminalColor::red($e->getMessage()) . PHP_EOL;
 }
+
+var_dump(END_TIME - START_TIME);

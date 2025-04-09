@@ -12,4 +12,19 @@ interface CommandInterface
      * @return string|null
      */
     public function handle (): string|null;
+    
+    /**
+     * @param array $arguments
+     */
+    public function __construct (array $arguments = []);
+    
+    /**
+     * @return bool
+     */
+    public static function checkRun (): bool;
+    
+    /**
+     * @return void
+     */
+    public function setLockFile (): void;
 }

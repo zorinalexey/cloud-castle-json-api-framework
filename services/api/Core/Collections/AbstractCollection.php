@@ -1,6 +1,6 @@
 <?php
 
-namespace CloudCastle\Core\Model;
+namespace CloudCastle\Core\Collections;
 
 use ArrayAccess;
 use ArrayIterator;
@@ -8,12 +8,11 @@ use Closure;
 use Countable;
 use Exception;
 use Iterator;
-use IteratorAggregate;
 use Serializable;
 use Stringable;
 use Traversable;
 
-abstract class AbstractCollection implements Traversable, Iterator, IteratorAggregate, Countable, ArrayAccess, Serializable, Stringable
+abstract class AbstractCollection implements Traversable, Iterator, Countable, ArrayAccess, Serializable, Stringable
 {
     /**
      * @var array
@@ -99,13 +98,11 @@ abstract class AbstractCollection implements Traversable, Iterator, IteratorAggr
     }
     
     /**
-     * @return mixed
+     * @return void
      */
-    final public function rewind(): mixed
+    final public function rewind(): void
     {
         reset($this->items);
-        
-        return $this->items[key($this->items)]?? null;
     }
     
     /**
@@ -196,8 +193,8 @@ abstract class AbstractCollection implements Traversable, Iterator, IteratorAggr
      */
     final public function each(callable|Closure $callback): void
     {
-        foreach ($this->items as $item) {
-            $callback($item);
+        foreach ($this->items as $key => $item) {
+            $callback($item, $key);
         }
     }
     
@@ -828,12 +825,9 @@ abstract class AbstractCollection implements Traversable, Iterator, IteratorAggr
      * Сдвигает внутренний указатель коллекции на одну позицию вперед
      * @return mixed
      */
-    final public function next(): mixed
+    final public function next(): void
     {
-        $data = next($this->items);
-        $this->position = key($this->items);
-        
-        return $data;
+        next($this->items);
     }
     
     /**

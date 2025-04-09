@@ -2,8 +2,8 @@
 
 namespace CloudCastle\Core\Resources;
 
-use CloudCastle\Core\Model\AbstractCollection;
 use CloudCastle\Core\Model\Model;
+use Core\Collections\AbstractCollection;
 
 abstract class Resource
 {

@@ -2,6 +2,7 @@
 
 namespace CloudCastle\Core\Router;
 
+use CloudCastle\Core\Collections\Collection;
 use CloudCastle\Core\Controllers\Controller;
 use CloudCastle\Core\Controllers\ErrorController;
 use CloudCastle\Core\Middleware\Middleware;
@@ -19,7 +20,7 @@ final class Router
      */
     public static function getCurrentRoute(): Route
     {
-        if (!is_null(self::$currentRoute)) {
+        if (self::$currentRoute) {
             return self::$currentRoute;
         }
         
@@ -28,6 +29,7 @@ final class Router
     
     /**
      * @return mixed
+     * @throws Exception
      */
     public static function run (): mixed
     {
@@ -35,15 +37,14 @@ final class Router
         
         /** @var Route $route */
         foreach (self::getRoutes() as $route) {
-            if (preg_match($route->getPattern(), $request->request_uri, $matches)) {
+            if (preg_match($route->getPattern(), '/'.trim($request->request_uri, '/'), $matches)) {
                 self::$currentRoute = $route;
                 $controller = self::checkController($route->getController());
                 $action = self::checkAction($controller, $route->getAction());
-                $routeRequest = self::checkRequest($matches, $route->getRequest());
+                $request = self::checkRequest($matches, $route->getRequest());
                 
-                
-                if (self::checkMiddlewares($route->getMiddlewares(), $routeRequest)) {
-                    return  $controller->{$action}($routeRequest);
+                if (self::checkMiddlewares($route->getMiddlewares(), $request)) {
+                    return  $controller->{$action}($request);
                 }
             }
         }
@@ -62,7 +63,7 @@ final class Router
     {
         $allRoutes = Route::getRoutes();
         
-        return $allRoutes[$_SERVER['REQUEST_METHOD']] ?? [];
+        return $allRoutes[self::getRequestMethod()] ?? [];
     }
     
     /**
@@ -99,7 +100,7 @@ final class Router
      * @param RequestInterface $request
      * @return RequestInterface
      */
-    private static function checkRequest (array $matches, RequestInterface $request)
+    private static function checkRequest (array $matches, RequestInterface $request): RequestInterface
     {
         foreach ($matches as $key => $value) {
             if (is_string($key)) {
@@ -133,5 +134,21 @@ final class Router
         }
         
         return !in_array(false, $checks);
+    }
+    
+    /**
+     * @return Collection
+     */
+    public static function routes(): Collection
+    {
+        return Collection::make(Route::getRoutes());
+    }
+    
+    /**
+     * @return string
+     */
+    private static function getRequestMethod (): string
+    {
+        return mb_strtoupper($_SERVER['REQUEST_METHOD']??'GET');
     }
 }

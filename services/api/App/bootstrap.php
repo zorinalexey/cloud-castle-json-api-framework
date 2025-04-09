@@ -2,18 +2,19 @@
 
 use CloudCastle\Core\App;
 use CloudCastle\Core\Config;
+use CloudCastle\Core\Console\TerminalColor;
 use CloudCastle\Core\Controllers\ErrorController;
 use CloudCastle\Core\Env;
 use CloudCastle\Core\Request\Request;
 use CloudCastle\Core\Router\Router;
 
+define('START_TIME', microtime(true));
 define('APP_ROOT', dirname(__FILE__, 2));
 
 $data = [];
 
 try {
     require_once APP_ROOT . '/vendor/autoload.php';
-    Request::getInstance();
     $env = Env::getInstance();
     $config = Config::getInstance();
     $app = App::getInstance();
@@ -21,23 +22,26 @@ try {
     $env->init(APP_ROOT . DIRECTORY_SEPARATOR . '.env');
     date_default_timezone_set($env->get('APP_TIMEZONE'));
     $config->init(APP_ROOT . DIRECTORY_SEPARATOR . 'config');
+    define('APP_LANG', session('lang', cookies('lang', config('app.default_lang', env('APP_LANG', 'ru')))));
+    Request::getInstance();
     
     if (!str_contains(mb_strtolower($env->get('APP_ENV', 'dev')), 'prod')) {
         ini_set('display_errors', 1);
         ini_set('display_startup_errors', 1);
         error_reporting(E_ALL);
     }
-
+    
+    foreach (scan_dir(APP_ROOT . DIRECTORY_SEPARATOR . 'routes') as $file) {
+        require_once $file;
+    }
+    
     if (APP === 'WEB') {
         session_start();
         
-        foreach (scan_dir(APP_ROOT . DIRECTORY_SEPARATOR . 'routes') as $file) {
-            require_once $file;
-        }
-        
         $data = Router::run();
+        var_dump($data);
     }elseif(APP === 'CLI'){
-        echo 'Start CLI-Mode:'.date('Y-m-d H:i:s').PHP_EOL;
+        echo TerminalColor::blue('Start CLI-Mode: '.date('Y-m-d H:i:s')).PHP_EOL;
     }else{
         throw new Exception ("Application not configured");
     }
@@ -47,8 +51,4 @@ try {
     $data = $controller->{$action}($t);
 }
 
-var_dump($data);
-
 define('END_TIME', microtime(true));
-
-#var_dump(END_TIME - START_TIME);
