@@ -7,8 +7,6 @@ use CloudCastle\Core\Console\TerminalColor;
 
 const APP = 'CLI';
 
-require(__DIR__ . '/App/bootstrap.php');
-
 unset($argv[0]);
 $args = [];
 
@@ -21,10 +19,12 @@ foreach ($argv as $argStr) {
 }
 
 try {
+    require(__DIR__ . '/App/bootstrap.php');
+    
     $console = new Console(...$args);
     $console->run();
 } catch (Exception $e) {
     echo TerminalColor::red($e->getMessage()) . PHP_EOL;
 }
 
-var_dump(END_TIME - START_TIME);
+echo TerminalColor::green(END_TIME - START_TIME). PHP_EOL;

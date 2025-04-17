@@ -17,9 +17,9 @@ function getRequestUriWithoutQuery (): string
  * @param string $key
  * @return string
  */
-function headers (string $key): string
+function headers (string $key): string|null
 {
-    return Router::getRequest()->headers($key);
+    return Router::getRequest()?->headers($key)?:null;
 }
 
 /**

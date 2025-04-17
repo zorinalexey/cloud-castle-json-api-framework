@@ -2,6 +2,11 @@
 
 use CloudCastle\Core\Request\Request;
 
+/**
+ * @param string $key
+ * @param mixed|null $default
+ * @return mixed
+ */
 function session(string $key, mixed $default = null): mixed
 {
     $request = Request::getInstance();
@@ -10,6 +15,11 @@ function session(string $key, mixed $default = null): mixed
     return $session[$key]??$default;
 }
 
+/**
+ * @param string $key
+ * @param mixed|null $default
+ * @return mixed
+ */
 function cookies(string $key, mixed $default = null): mixed
 {
     $request = Request::getInstance();

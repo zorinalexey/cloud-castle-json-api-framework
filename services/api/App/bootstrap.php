@@ -11,12 +11,7 @@ use CloudCastle\Core\Router\Router;
 define('START_TIME', microtime(true));
 define('APP_ROOT', dirname(__FILE__, 2));
 
-$data = new class implements Stringable {
-    public function __toString(): string
-    {
-        return '';
-    }
-};
+$data = '';
 
 try {
     require_once APP_ROOT . '/vendor/autoload.php';
@@ -53,7 +48,9 @@ try {
     $data = $controller->{$action}($t);
 }
 
-header('Content-type: '. headers('Content-Type'));
+if (APP === 'WEB') {
+    header('Content-type: '. headers('Content-Type')??'text/html; charset=utf-8');
+}
 
 echo $data;
 

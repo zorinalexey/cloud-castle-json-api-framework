@@ -5,6 +5,7 @@ namespace CloudCastle\Core\Collections;
 use ArrayAccess;
 use ArrayIterator;
 use Closure;
+use CloudCastle\Core\Traits\StringableTrait;
 use Countable;
 use Exception;
 use Iterator;
@@ -14,6 +15,8 @@ use Traversable;
 
 abstract class AbstractCollection implements Traversable, Iterator, Countable, ArrayAccess, Serializable, Stringable
 {
+    use StringableTrait;
+    
     /**
      * @var array
      */
@@ -180,14 +183,6 @@ abstract class AbstractCollection implements Traversable, Iterator, Countable, A
     }
     
     /**
-     * @return string
-     */
-    final public function __toString(): string
-    {
-        return json_encode($this->items);
-    }
-    
-    /**
      * @param callable|Closure $callback
      * @return void
      */
@@ -323,11 +318,7 @@ abstract class AbstractCollection implements Traversable, Iterator, Countable, A
      */
     final public function diff(self $collection): static
     {
-        if($collection instanceof self) {
-            $collection = $collection->toArray();
-        }
-        
-        return static::make(array_diff($this->items, $collection));
+        return static::make(array_diff($this->items,  $collection->toArray()));
     }
     
     /**

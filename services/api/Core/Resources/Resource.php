@@ -3,24 +3,49 @@
 namespace CloudCastle\Core\Resources;
 
 use CloudCastle\Core\Collections\AbstractCollection;
-use CloudCastle\Core\Model\Model;
-use JsonException;
+use CloudCastle\Core\Collections\Collection;
+use CloudCastle\Core\Traits\StringableTrait;
+use stdClass;
 
-abstract class Resource
+abstract class Resource extends stdClass
 {
-    private array|Model $data = [];
+    use StringableTrait;
     
-    abstract public function toArray (): array;
+    /**
+     * @var array|object
+     */
+    private array|object $data;
     
-    public static function make (array|Model $data): array
+    private function __construct(array|object $data)
     {
-        $object = new static();
-        $object->data = $data;
-        
-        return $object->toArray();
+        $this->data = $data;
     }
     
-    public function collection (array|AbstractCollection $items): array
+    /**
+     * @return array
+     */
+    abstract public function toArray (): array;
+    
+    /**
+     * @param array|object $data
+     * @return self
+     */
+    public static function make (array|object $data): self
+    {
+        $obj = new static($data);
+        
+        foreach ($obj->toArray() as $key => $value) {
+            $obj->{$key} = $value;
+        }
+        
+        return $obj;
+    }
+    
+    /**
+     * @param array|AbstractCollection $items
+     * @return Collection
+     */
+    public static function collection (array|object $items): AbstractCollection
     {
         $data = [];
         
@@ -28,60 +53,33 @@ abstract class Resource
             $data[] = static::make ($item);
         }
         
-        return $data;
+        return Collection::make($data);
     }
     
+    /**
+     * @param $name
+     * @return mixed
+     */
     public function __get ($name): mixed
     {
-        if(is_array($this->data) && array_key_exists($name, $this->data)){
+        if(is_array($this->data) && isset($this->data[$name])){
             return $this->data[$name];
         }
         
-        return $this->data->{$name};
+        return $this->data->{$name}??null;
     }
     
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public function __call(string $name, array $arguments): mixed
     {
-        if($this->data instanceof Model && method_exists($this->data, $name)){
+        if(is_object($this->data) && method_exists($this->data, $name)){
             return $this->data->{$name}(...$arguments);
         }
         
         return null;
-    }
-    
-    public function __toString(): string
-    {
-        $contentType = headers('Content-Type');
-        
-        return match ($contentType) {
-            'application/json' => $this->getToJson(),
-            'application/xml', 'text/xml' => $this->getToXml(),
-            default => $this->getToHtml(),
-        };
-    }
-    
-    /**
-     * @return string
-     * @throws JsonException
-     */
-    private function getToJson (): string
-    {
-        return json_encode($this->toArray(), JSON_THROW_ON_ERROR|JSON_PRETTY_PRINT);
-    }
-    
-    /**
-     * @return string
-     */
-    private function getToXml (): string
-    {
-        return '<?xml version="1.0" encoding="UTF-8"?>';
-    }
-    
-    /**
-     * @return string
-     */
-    private function getToHtml (): string
-    {
-        return (string) $this->data;
     }
 }

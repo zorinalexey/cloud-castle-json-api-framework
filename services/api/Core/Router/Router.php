@@ -167,9 +167,9 @@ final class Router
     }
     
     /**
-     * @return RequestInterface
+     * @return RequestInterface|null
      */
-    public static function getRequest (): RequestInterface
+    public static function getRequest (): RequestInterface|null
     {
         return self::$request;
     }

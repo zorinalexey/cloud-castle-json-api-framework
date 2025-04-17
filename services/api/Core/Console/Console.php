@@ -37,7 +37,6 @@ final class Console
             $class = new $class($this->arguments);
             
             if (!$class instanceof Command) {
-                unlink($class->getRunFile());
                 throw new Exception("Class '{$class}' does not instance of " . Command::class);
             }
             
@@ -71,18 +70,18 @@ final class Console
                 echo PHP_EOL . $color::red($newList) . PHP_EOL;
             }
             
-            echo $color::blue("$command ") . $color::green($this->getStr($command, $class::DESCRIPTION) . " " . $class::DESCRIPTION ). PHP_EOL;
+            echo $color::blue("$command ") . $color::green($this->getStr($command) . " " . $class::DESCRIPTION ). PHP_EOL;
             $lastCommandName = explode(':', $command)[0];
         }
     }
     
-    private function getStr (string $command, string $description): string
+    private function getStr (string $command): string
     {
         $str = '';
-        $length = mb_strlen($command . $description);
+        $length = mb_strlen($command);
         
         if ($length < 180) {
-            for ($i = 0; $i < 90 - $length; $i++) {
+            for ($i = 0; $i < 20 - $length; $i++) {
                 $str .= ' ';
             }
         }
