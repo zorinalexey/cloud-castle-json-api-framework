@@ -7,7 +7,7 @@ use CloudCastle\Core\Config;
  * @param mixed|null $default
  * @return mixed
  */
-function config (string|null $key, mixed $default = null): mixed
+function config (string|null $key = null, mixed $default = null): mixed
 {
     $config = Config::getInstance();
     

@@ -2,7 +2,7 @@
 
 namespace CloudCastle\Core\Collections;
 
-final class Collection extends AbstractCollection
+class Collection extends AbstractCollection
 {
     /**
      * @param array $items

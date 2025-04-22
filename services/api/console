@@ -27,4 +27,4 @@ try {
     echo TerminalColor::red($e->getMessage()) . PHP_EOL;
 }
 
-echo TerminalColor::green(END_TIME - START_TIME). PHP_EOL;
+echo TerminalColor::green(microtime(true) - START_TIME) . PHP_EOL;

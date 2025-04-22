@@ -9,25 +9,22 @@ use Throwable;
 
 final class ErrorController extends Controller
 {
-    public function page404(Request $request): Stringable
+    public function webPage404 (Request $request): Stringable|string
     {
-        return new class($request) implements Stringable {
-            
-            private Request $request;
-            
-            public function __construct(Request $request){
-                $this->request = $request;
-            }
-            public function __toString (): string
-            {
-                $current = Router::getCurrentRoute();
-                
-                return json_encode([$current, $this->request], JSON_PRETTY_PRINT);
-            }
-        };
+        return view('errors/404', compact('request'));
     }
     
-    public function page500(Throwable $t): Stringable
+    public function webPage500 (Throwable $t): Stringable|string
+    {
+        return view('errors/500', ['error' => $t]);
+    }
+    
+    public function jsonPage500 (Throwable $t): Stringable
+    {
+        return view('errors/404', compact('request'));
+    }
+    
+    public function xmlPage500 (Throwable $t): Stringable
     {
         return new class($t) implements Stringable {
             

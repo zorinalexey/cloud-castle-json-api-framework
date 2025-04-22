@@ -20,20 +20,21 @@ final class Router
      * @return Route
      * @throws Exception
      */
-    public static function getCurrentRoute(): Route
+    public static function getCurrentRoute (): Route|null
     {
         if (self::$currentRoute) {
             return self::$currentRoute;
         }
         
-        throw new Exception('Current route not defined');
+        return null;
+        //throw new Exception('Current route not defined');
     }
     
     /**
      * @return mixed
      * @throws Exception
      */
-    public static function run (): Stringable
+    public static function run (): Stringable|string
     {
         $request = Request::getInstance();
         self::$request = $request;
@@ -55,7 +56,7 @@ final class Router
         
         $class = config('app.error_controller', ErrorController::class);
         $controller = self::checkController($class);
-        $action = self::checkAction($controller, config('app.error_action', 'page404'));
+        $action = self::checkAction($controller, errorAction(404, 'page404'));
         
         return $controller->{$action}($request);
     }
@@ -65,9 +66,7 @@ final class Router
      */
     private static function getRoutes (): array
     {
-        $allRoutes = Route::getRoutes();
-        
-        return $allRoutes[self::getRequestMethod()] ?? [];
+        return Route::getRoutes()[self::getRequestMethod()] ?? [];
     }
     
     /**
@@ -151,8 +150,12 @@ final class Router
     /**
      * @return string
      */
-    private static function getRequestMethod (): string
+    public static function getRequestMethod (): string
     {
+        if (self::$request && self::$request->{'_method'}) {
+            return self::$request->{'_method'};
+        }
+        
         return mb_strtoupper($_SERVER['REQUEST_METHOD']??'GET');
     }
     

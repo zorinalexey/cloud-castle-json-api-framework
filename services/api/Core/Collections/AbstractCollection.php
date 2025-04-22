@@ -10,10 +10,11 @@ use Countable;
 use Exception;
 use Iterator;
 use Serializable;
+use stdClass;
 use Stringable;
 use Traversable;
 
-abstract class AbstractCollection implements Traversable, Iterator, Countable, ArrayAccess, Serializable, Stringable
+abstract class AbstractCollection extends stdClass implements Traversable, Iterator, Countable, ArrayAccess, Serializable, Stringable
 {
     use StringableTrait;
     
