@@ -4,6 +4,7 @@ namespace CloudCastle\Core\Filters;
 
 use CloudCastle\Core\DataBase\Builder\Select;
 use CloudCastle\Core\Model\ModelInterface;
+use DateTime;
 
 abstract class AbstractFilter
 {
@@ -45,11 +46,78 @@ abstract class AbstractFilter
     }
     
     /**
+     * @param string $value
+     * @return $this
+     */
+    final protected function uuid (string $value): self
+    {
+        $this->builder->where("{$this->table}.uuid", $value);
+        
+        return $this;
+    }
+    
+    /**
+     * @param int $value
+     * @return $this
+     */
+    final protected function id (int $value): self
+    {
+        $this->builder->where("{$this->table}.id", $value);
+        
+        return $this;
+    }
+    
+    /**
+     * @param string|DateTime $value
+     * @return $this
+     */
+    final protected function deleted_at (string|DateTime $value): self
+    {
+        if(is_string($value)) {
+            $value = date_create($value);
+        }
+        
+        $this->builder->where("{$this->table}.deleted_at", $value);
+        
+        return $this;
+    }
+    
+    /**
+     * @param string|DateTime $value
+     * @return $this
+     */
+    final protected function updated_at (string|DateTime $value): self
+    {
+        if(is_string($value)) {
+            $value = date_create($value);
+        }
+        
+        $this->builder->where("{$this->table}.updated_at", $value);
+        
+        return $this;
+    }
+    
+    /**
+     * @param string|DateTime $value
+     * @return $this
+     */
+    final protected function created_at (string|DateTime $value): self
+    {
+        if(is_string($value)) {
+            $value = date_create($value);
+        }
+        
+        $this->builder->where("{$this->table}.created_at", $value);
+        
+        return $this;
+    }
+    
+    /**
      * @param array $filters
      * @param ModelInterface $model
      * @return void
      */
-    private function setDefaultParams (array &$filters, ModelInterface $model)
+    private function setDefaultParams (array &$filters, ModelInterface $model): void
     {
         if (!isset($filters['trashed'])) {
             $filters['trashed'] = null;

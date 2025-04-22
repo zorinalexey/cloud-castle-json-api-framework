@@ -6,6 +6,7 @@ use Closure;
 use CloudCastle\Core\DataBase\Table\AlterTable;
 use CloudCastle\Core\DataBase\Table\CreateTable;
 use CloudCastle\Core\Model\Model;
+use Exception;
 
 final class Schema
 {
@@ -29,6 +30,7 @@ final class Schema
     /**
      * @param Closure $func
      * @return bool
+     * @throws Exception
      */
     public function query (Closure $func): bool
     {
@@ -42,6 +44,7 @@ final class Schema
     /**
      * @param Closure $func
      * @return bool
+     * @throws Exception
      */
     public function alter (Closure $func): bool
     {

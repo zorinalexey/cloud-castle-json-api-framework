@@ -60,7 +60,7 @@ final class Select implements Stringable
             $name = ':bind_' . md5(serialize($value));
         } else {
             if (!str_contains($name, ':')) {
-                $name = ":{$name}";
+                $name = ":".str_replace(['.', ':'], ['_', ''], $name);
             }
         }
         
@@ -72,7 +72,7 @@ final class Select implements Stringable
             $value = $value->format('Y-m-d H:i:s');
         }
         
-        $this->bind[$name] = $value;
+        $this->binds[$name] = $value;
         
         return $name;
     }
@@ -164,9 +164,9 @@ final class Select implements Stringable
     
     /**
      * @param Generator|null $cursor
-     * @return Model|null
+     * @return Model|ModelInterface|null
      */
-    private function setItem (Generator|null $cursor): Model|null
+    private function setItem (Generator|null $cursor): Model|ModelInterface|null
     {
         if (!$cursor) {
             return null;
@@ -289,6 +289,11 @@ final class Select implements Stringable
         $fields = [];
         $this->setFields($fields, $table, $columns);
         $sql = "SELECT\n\t" . implode(",\n\t", $fields) . "\nFROM\n\t{$table}\n";
+        
+        
+        if($this->conditions){
+            $sql .= "WHERE\n\t" . preg_replace('~^(?:AND|OR)\s+|(?:AND|OR)\s*$~iu', '', trim(implode("\n\t", $this->conditions)))."\n";
+        }
         
         if ($this->order) {
             $sql .= "ORDER BY\n\t" . implode(",\n\t", $this->order) . "\n";

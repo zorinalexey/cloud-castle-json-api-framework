@@ -18,7 +18,7 @@ final class DateTimeType extends AbstractValidator
             return;
         }
         
-        if ($date = date_create($var)) {
+        if ($var && $date = date_create($var)) {
             $var = $date;
             
             return;

@@ -4,8 +4,19 @@ namespace CloudCastle\Core\Model;
 
 use CloudCastle\Core\DataBase\Builder\Select;
 use CloudCastle\Core\Repository\Repository;
+use DateTime;
 use PDO;
 
+/**
+ * @property int|null $id
+ * @property string|null $uuid
+ * @property DateTime|null $created_at
+ * @property DateTime|null $updated_at
+ * @property DateTime|null $deleted_at
+ *
+ * @method getById(int $id)
+ * @method getByUuid(string $uuid)
+ */
 interface ModelInterface
 {
     /**
@@ -23,9 +34,11 @@ interface ModelInterface
      *
      */
     public const array MAIN_CASTS = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'id' => 'int|nullable',
+        'uuid' => 'string|nullable',
+        'created_at' => 'datetime|nullable',
+        'updated_at' => 'datetime|nullable',
+        'deleted_at' => 'datetime|nullable',
     ];
     
     /**

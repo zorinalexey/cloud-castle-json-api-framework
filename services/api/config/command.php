@@ -5,6 +5,7 @@ use CloudCastle\Core\Console\Command\Make\MakeCommand;
 use CloudCastle\Core\Console\Command\Make\MakeConfig;
 use CloudCastle\Core\Console\Command\Make\MakeController;
 use CloudCastle\Core\Console\Command\Make\MakeFactory;
+use CloudCastle\Core\Console\Command\Make\MakeFilter;
 use CloudCastle\Core\Console\Command\Make\MakeMiddleware;
 use CloudCastle\Core\Console\Command\Make\MakeMigrate;
 use CloudCastle\Core\Console\Command\Make\MakeModel;
@@ -37,6 +38,7 @@ return [
     'make:validator' => MakeValidator::class,
     'make:middleware' => MakeMiddleware::class,
     'make:route' => MakeRoute::class,
+    'make:filter' => MakeFilter::class,
     'route:list' => RouteList::class,
     'schedule:run' => ScheduleRun::class,
     'schedule:list' => ScheduleList::class,

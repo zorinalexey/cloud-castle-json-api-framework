@@ -7,20 +7,25 @@ use CloudCastle\Core\Filters\AbstractFilter;
 use CloudCastle\Core\Helpers\Str;
 use CloudCastle\Core\Repository\Repository;
 use CloudCastle\Core\Validator\ValidationException;
-use DateTime;
 use Exception;
 use PDO;
 use stdClass;
 
 /**
- * @property int $id
- * @property string $uuid
- * @property DateTime $created_at
- * @property DateTime $updated_at
- * @property DateTime $deleted_at
+ * @method static Model|null save(array $data = [])
+ * @method static Model|null create(array $data = [])
+ * @method static Model|null update(string|int $id, array $data = [])
+ * @method static Model|null softDelete(string|int $id)
+ * @method static Model|null hardDelete(string|int $id)
+ * @method static Model|null restore(string|int $id)
  */
-class Model extends stdClass implements ModelInterface
+abstract class Model extends stdClass implements ModelInterface
 {
+    /**
+     * @var ModelInterface|null
+     */
+    public ModelInterface|null $old = null;
+    
     /**
      * @var string|null
      */
@@ -84,6 +89,7 @@ class Model extends stdClass implements ModelInterface
     /**
      * @param array $data
      * @return static
+     * @throws ValidationException
      */
     final public static function make (array $data): static
     {
@@ -97,9 +103,10 @@ class Model extends stdClass implements ModelInterface
                 $column = preg_replace($pattern, '$1', $column);
             }
             
-            $column = trim($column, '_');
+            $column = trim(trim($column), '_');
             
-            if (in_array($column, $columns)) {
+            if (in_array($column, $columns) || property_exists($model, $column)) {
+                $model->{$column} = $value;
                 static::setCasts($model, $column, $value, $casts[$column] ?? null);
             } else {
                 $model->setRelations($column, $value);
@@ -127,7 +134,7 @@ class Model extends stdClass implements ModelInterface
      */
     final public static function table (): string
     {
-        if (static::$table !== null) {
+        if (!static::$table) {
             static::$table = Str::toSnakeCase(class_basename(static::class));
         }
         
@@ -143,9 +150,10 @@ class Model extends stdClass implements ModelInterface
         if (!static::$config) {
             $config = config('database');
             $dbConf = static::getDbConf($config);
+            $dsn = static::getDsn($config);
             
             static::$config = [
-                'dsn' => static::getDsn($dbConf),
+                'dsn' => $dsn,
                 'username' => $dbConf['username'],
                 'password' => $dbConf['password'],
                 'options' => [...$config['options'], ...$dbConf['options'] ?? []],
@@ -185,7 +193,7 @@ class Model extends stdClass implements ModelInterface
         } else {
             static::checkConf($dbConf);
             
-            $dsn .= $dbConf['host'];
+            $dsn .= "host={$dbConf['host']}";
             $dsn .= ";dbname={$dbConf['database']}";
             $dsn .= ";port={$dbConf['port']}";
         }
@@ -202,10 +210,10 @@ class Model extends stdClass implements ModelInterface
      */
     final protected static function getDbConf (array $config): array
     {
-        $dbConf = $config[static::$dbName] ?? null;
+        $dbConf = $config['connections'][static::$dbName] ?? null;
         
         if (!$dbConf) {
-            throw new Exception("Database '{$config['options']} configuration is missing", 50111);
+            throw new Exception("Database '".static::$dbName."' configuration is missing", 50111);
         }
         
         return $dbConf;
@@ -239,12 +247,12 @@ class Model extends stdClass implements ModelInterface
      * @return void
      * @throws ValidationException
      */
-    private static function setCasts (Modelinterface $model, string $column, mixed $value, string|null $cast)
+    private static function setCasts (Modelinterface $model, string $column, mixed $value, string|null $casts): void
     {
-        $model->{$column} = $value;
-        
-        if (config('validator')[$cast] ?? null) {
-            validated($model->{$column}, $cast);
+        foreach(explode('|', $casts) as $cast) {
+            if (config('validator')[$cast] ?? null) {
+                validated($model->{$column}, $cast);
+            }
         }
     }
     
@@ -252,10 +260,27 @@ class Model extends stdClass implements ModelInterface
      * @param string $column
      * @param mixed $value
      * @return void
+     * @throws ValidationException
      */
     private function setRelations (string $column, mixed $value): void
     {
-    
+        foreach ($this->relations($this->getRelation()) as $entity => $relation) {
+            $pattern = "~^(?<table>{$relation['table']})_(?<column>\w+)$~ui";
+            $table = null;
+            
+            if(preg_match($pattern, $column, $match)) {
+                $column = $match['column'];
+                $table = $match['table'];
+                
+                if(!$this->{$entity} && $relation['table'] === $match['table']) {
+                    $this->{$entity} = new $relation['related']();
+                }
+            }
+            
+            if($table && $this->{$entity} && $relation['table'] === $match['table']){
+                $this->setCasts($this->{$entity}, $column, $value, $this->{$entity}->getCasts()[$column] ?? null);
+            }
+        }
     }
     
     /**
@@ -290,23 +315,6 @@ class Model extends stdClass implements ModelInterface
         $this->runEvents("before_{$name}", $old);
         $this->runObservers("before_{$name}", $old);
         
-        if (method_exists($this, $name)) {
-            $result = $this->{$name}();
-            $this->runEvents("{$name}", $result);
-            $this->runObservers("{$name}", $result);
-            
-            return $result;
-        }
-        
-        if (method_exists($this->getRepository(), $name)) {
-            $model = $this->getRepository()->{$name}();
-            $this->runEvents("after_{$name}", $model);
-            $this->runObservers("after_{$name}", $model);
-            $model->old = $old;
-            
-            return $model;
-        }
-        
         try {
             $this->load([$name]);
             $model = $this->{$name};
@@ -321,6 +329,49 @@ class Model extends stdClass implements ModelInterface
         return null;
     }
     
+    public function __call(string $name, array $arguments): mixed
+    {
+        $old = null; // $this->getRepository()->getByUuid($this->uuid);
+        $this->runEvents("before_{$name}", $old);
+        $this->runObservers("before_{$name}", $old);
+        
+        if (method_exists($this->getRepository(), $name)) {
+            $params = [...$this->toArray()];
+            
+            if($old){
+                $params['old'] = $old;
+            }
+            
+            $model = $this->getRepository()->{$name}(...$params);
+            $this->runEvents("after_{$name}", $model);
+            $this->runObservers("after_{$name}", $model);
+            
+            return $model;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return objToArray($this);
+    }
+    
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public static function __callStatic(string $name, array $arguments): mixed
+    {
+        $obj = static::make($arguments[0]);
+        
+        return $obj->{$name}(...$arguments);
+    }
+    
     /**
      * @param Relation $relation
      * @return array
@@ -328,6 +379,7 @@ class Model extends stdClass implements ModelInterface
     protected function relations (Relation $relation): array
     {
         return [
+        
         ];
     }
     
@@ -358,7 +410,7 @@ class Model extends stdClass implements ModelInterface
     {
         if (!isset(static::$repository[$this->uuid])) {
             /** @var Repository $class */
-            $class = str_replace('Model', 'Repository', static::class);
+            $class = str_replace('Models', 'Repository', static::class);
             static::$repository[$this->uuid] = new $class($this);
         }
         
@@ -407,7 +459,7 @@ class Model extends stdClass implements ModelInterface
     {
     }
     
-    private function runObservers (string $string, ModelInterface $old)
+    private function runObservers (string $string, ModelInterface|null $model)
     {
     }
 }

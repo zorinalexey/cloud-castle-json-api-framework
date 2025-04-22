@@ -22,15 +22,19 @@ abstract class Repository
      */
     final public function filter (array $filters): Select
     {
-        return $this->model::getFilter($filters);
+        return $this->model->getFilter($filters);
     }
     
     /**
-     * @param int $id
-     * @return ModelInterface
+     * @param int|null $id
+     * @return ModelInterface|null
      */
-    final public function getById (int $id): ModelInterface
+    final public function getById (int|null $id, mixed ...$filters): ModelInterface|null
     {
+        if(!$id){
+            return null;
+        }
+        
         return $this->filter(['id' => $id])->first();
     }
     
@@ -38,16 +42,24 @@ abstract class Repository
      * @param string $uuid
      * @return ModelInterface
      */
-    final public function getByUuid (string $uuid): ModelInterface
+    final public function getByUuid (string|null $uuid, mixed ...$filters): ModelInterface|null
     {
-        return $this->filter(['uuid' => $uuid])->first();
+        if(!$uuid){
+            return null;
+        }
+        
+        $select = $this->filter(['uuid' => $uuid]);
+        
+        var_dump((string)$select);
+        
+        return $select->first();
     }
     
     /**
      * @param array $filters
      * @return Collection
      */
-    final public function get (array $filters = []): Collection
+    final public function get (array $filters): Collection
     {
         return $this->filter($filters)->all();
     }
@@ -56,35 +68,80 @@ abstract class Repository
      * @param array $filters
      * @return PaginateCollection
      */
-    final public function paginate (array $filters = []): PaginateCollection
+    final public function paginate (array $filters): PaginateCollection
     {
         return $this->filter($filters)->paginate();
     }
     
-    public function create (array $data): ModelInterface|null
+    /**
+     * @param mixed ...$data
+     * @return ModelInterface|null
+     */
+    public function create (mixed ...$data): ModelInterface|null
     {
-        
         return null;
     }
     
-    public function update (int $id, array $data): ModelInterface
+    public function update (int|string $id, mixed ...$data): ModelInterface
     {
-        return $this->model;
-    }
-    
-    public function softDelete (int $id): ModelInterface|null
-    {
+        $params = [];
+        $this->setParams($id, $params);
+        $old = $this->filter($params)->first();
         
         return $this->model;
     }
     
-    public function hardDelete (int $id): ModelInterface
+    public function softDelete (int|string $id, mixed ...$filters): ModelInterface|null
     {
+        $params = [];
+        $this->setParams($id, $params);
+        $old = $this->filter($params)->first();
+        
         return $this->model;
     }
     
-    public function restore (int $id): ModelInterface
-    {
+    public function hardDelete (int|string $id, mixed ...$filters): ModelInterface
+    {   $params = [];
+        $this->setParams($id, $params);
+        $old = $this->filter($params)->first();
+        
         return $this->model;
     }
+    
+    public function restore (int|string $id, mixed ...$filters): ModelInterface
+    {
+        $params = [];
+        $this->setParams($id, $params);
+        $old = $this->filter($params)->first();
+        
+        return $this->model;
+    }
+    
+    /**
+     * @param array $data
+     * @return ModelInterface|null
+     */
+    public function save (mixed ...$data): ModelInterface|null
+    {
+        if(isset($data['uuid'], $data['id'])){
+            return $this->model::make($data)->update();
+        }
+        
+        return $this->model::make($data)->create();
+    }
+    
+    /**
+     * @param int|string $id
+     * @param array $params
+     * @return void
+     */
+    private function setParams (int|string $id, array &$params): void
+    {
+        if(is_string($id)){
+            $params['uuid'] = $id;
+        }else{
+            $params['id'] = $id;
+        }
+    }
+    
 }

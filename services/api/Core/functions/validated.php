@@ -11,6 +11,7 @@ use CloudCastle\Core\Validator\ValidationException;
  */
 function validated (mixed &$var, string $rules): void
 {
+    //var_dump($var, $rules);
     $validators = config('validator');
     
     foreach (explode('|', $rules) as $rule) {
@@ -20,6 +21,7 @@ function validated (mixed &$var, string $rules): void
         /** @var AbstractValidator $validator */
         $validator = isset($validators[$type]) ? new $validators[$type]() : null;
         $options = [];
+        $errors = [];
         
         foreach ($opt as $value) {
             $optData = explode(',', $value);

@@ -27,6 +27,7 @@ final class Relation
         $this->relations[][$i] = [
             'related' => $related,
             'model' => $this->model,
+            'table' => $related::table(),
             'method' => 'first',
             'type' => RelationType::HAS_ONE,
             'params' => [
@@ -76,6 +77,7 @@ final class Relation
         $this->relations[$i] = [
             'related' => $related,
             'model' => $this->model,
+            'table' => $related::table(),
             'method' => 'all',
             'type' => RelationType::HAS_MANY,
             'params' => [

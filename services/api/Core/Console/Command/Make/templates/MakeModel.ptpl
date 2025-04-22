@@ -5,5 +5,25 @@ namespace {name_spase};
 {use_class_name}
 final class {class_name}{extends_class_name}
 {
+    /**
+    * @var string|null
+    */
+    protected static string|null $table = null;
 
+     /**
+     * @var string
+     */
+     protected static string $dbName = 'default';
+
+     /**
+     * @var array
+     */
+     protected static array $casts = [
+     ];
+
+     /**
+     * @var array
+     */
+     protected static array $columns = [
+     ];
 }

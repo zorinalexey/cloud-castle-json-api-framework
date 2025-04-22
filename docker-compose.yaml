@@ -35,6 +35,24 @@ services:
     networks:
       - app
 
+  pgsql:
+    image: postgres:16
+    container_name: "pgsql"
+    environment:
+      TZ: ${TIME_ZONE}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - "./data/db/postgresql:/var/lib/postgresql/data/pgdata"
+      - "./logs/services/pgsql:/var/log/postgresql"
+    ports:
+      - "5485:5432"
+    restart: always
+    networks:
+      - app
+
   redis:
     build:
       context: ./.docker/redis
